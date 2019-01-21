@@ -40,7 +40,6 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
     private var maxFiles = 0
     private var selectedFiles:ArrayList<String> = ArrayList()
 
-
     companion object {
         const val PERMISSION_REQUEST = 202
         const val TAG = "FileActivity"
