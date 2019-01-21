@@ -26,8 +26,9 @@ class FileProviderAny {
         val instance: FileProviderAny
             get() = FileProviderAny()
     }
-    fun setMaxFiles(size:Int){
+    fun setMaxFiles(size:Int):FileProviderAny{
         MAX_FILES = size
+        return this
     }
 
     fun pickAnyFile(context: Activity,REQUEST_CODE:Int){
@@ -35,16 +36,16 @@ class FileProviderAny {
 
         val intent = Intent(ctx,FileActivity::class.java)
         intent.putExtra("MAX_FILE_SIZE",MAX_FILES)
+        intent.putStringArrayListExtra("TYPE_LIST",fileList)
         if (fileList.size == 0){
             intent.putExtra(TYPE_ALL, TYPE_ALL)
-        }else{
-            intent.putStringArrayListExtra("TYPE_LIST",fileList)
         }
 
         context.startActivityForResult(intent,REQUEST_CODE)
     }
-    fun setFileTypes(fileType:ArrayList<String>){
+    fun setFileTypes(fileType:ArrayList<String>):FileProviderAny{
         fileList = fileType
+        return this
     }
 
     fun showToast(context: Context,message:String){

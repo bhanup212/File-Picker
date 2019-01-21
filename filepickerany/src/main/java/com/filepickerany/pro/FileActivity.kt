@@ -19,25 +19,33 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.filepickerany.pro.Adapter.FilesAdapter
 import com.filepickerany.pro.Model.FileDetails
+import org.jetbrains.anko.doAsync
 import java.io.File
 
 class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
-    override fun onClick(isChecked: Boolean, fileDetails: FileDetails) {
-        Log.e(TAG,"isChecked $isChecked and file name is ${fileDetails.filePath} and file name is ${fileDetails.fileName}")
-        if (isChecked){
-            selectedFiles.add(fileDetails.filePath)
+    override fun onClick( position:Int,fileDetails: FileDetails) {
+        Log.e(TAG," file name is ${fileDetails.filePath}")
+
+        if (selectedFiles.contains(fileDetails.filePath)){
+            selectedFiles.remove(fileDetails.filePath)
+            filteredFiles[position].isSelected = false
         }else{
-            if (selectedFiles.contains(fileDetails.filePath)){
-                selectedFiles.remove(fileDetails.filePath)
+            if (selectedFiles.size >= maxFiles){
+                Toast.makeText(this,"max files selected",Toast.LENGTH_SHORT).show()
+            }else {
+                selectedFiles.add(fileDetails.filePath)
+                filteredFiles[position].isSelected = true
             }
         }
+        supportActionBar!!.title = "${selectedFiles.size} Files selected"
+        fileAdapter.notifyDataSetChanged()
     }
 
     private lateinit var filesRv: RecyclerView
     private var fileTypes: ArrayList<String> = ArrayList()
     private var filteredFiles: ArrayList<FileDetails> = ArrayList()
     private lateinit var fileAdapter: FilesAdapter
-    private var maxFiles = 0
+    private var maxFiles = 1
     private var selectedFiles:ArrayList<String> = ArrayList()
 
     companion object {
@@ -45,12 +53,19 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
         const val TAG = "FileActivity"
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        finish()
+        return super.onSupportNavigateUp()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_file)
+        supportActionBar!!.title = "0 Files selected"
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         maxFiles = intent.getIntExtra("MAX_FILE_SIZE", 1)
-        fileTypes = intent.getStringArrayListExtra("TYPE_LIST")
-        checkFileTypes(fileTypes)
+        val fileTye = intent.getStringArrayListExtra("TYPE_LIST")
+        checkFileTypes(fileTye)
         init()
         fileAdapter = FilesAdapter(this, filteredFiles)
         filesRv.layoutManager = GridLayoutManager(this, 3)
@@ -58,11 +73,6 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
         filesRv.adapter = fileAdapter
         fileAdapter.notifyDataSetChanged()
 
-        if (isPermissionGranted()) {
-            fetchFiles()
-        } else {
-            requestPermission()
-        }
     }
 
     private fun init() {
@@ -72,6 +82,7 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
     private fun checkFileTypes(fileType: ArrayList<String>) {
 
         for (type in fileType) {
+            Log.e(TAG,"file type is: $type")
             when (type) {
                 FileProviderAny.TYPE_PDF -> {
                     fileTypes.add(FileProviderAny.TYPE_PDF)
@@ -99,6 +110,12 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
                 }
 
             }
+        }
+
+        if (isPermissionGranted()) {
+            fetchFiles()
+        } else {
+            requestPermission()
         }
     }
 
@@ -146,16 +163,13 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
                 setResult(Activity.RESULT_OK,intent)
                 finish()
             }
-            R.id.selected_menu -> {
-
-            }
         }
         return super.onOptionsItemSelected(item)
     }
 
     private fun fetchFiles(dir: File = Environment.getExternalStorageDirectory()) {
 
-        AsyncTask.execute {
+        doAsync {
             var allFolder = dir.listFiles()
             if (allFolder != null) {
                 for (folder in allFolder) {
@@ -193,7 +207,7 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
                                 false
                             )
                             filteredFiles.add(file)
-                        } else if (folder.name.endsWith(".doc") && fileTypes.contains(FileProviderAny.TYPE_DOC)) {
+                        } /*else if (folder.name.endsWith(".doc") && fileTypes.contains(FileProviderAny.TYPE_DOC)) {
 
                             val file = FileDetails(
                                 folder.name,
@@ -253,8 +267,10 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
                                 false
                             )
                             filteredFiles.add(file)
+                        }*/
+                        runOnUiThread {
+                            fileAdapter.notifyDataSetChanged()
                         }
-                        fileAdapter.notifyDataSetChanged()
                     }
                 }
             }

@@ -1,5 +1,6 @@
 package com.filepickerany.pro.Adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,6 +11,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.filepickerany.pro.Model.FileDetails
 import com.filepickerany.pro.R
+import com.squareup.picasso.Picasso
+import java.io.File
 
 class FilesAdapter(callBack:ClickCallBack,files:ArrayList<FileDetails>): RecyclerView.Adapter<FilesAdapter.ViewHolder>() {
 
@@ -31,10 +34,22 @@ class FilesAdapter(callBack:ClickCallBack,files:ArrayList<FileDetails>): Recycle
     override fun onBindViewHolder(holder: FilesAdapter.ViewHolder, position: Int) {
         var file = fileList[position]
         holder.name.text = file.fileName
+        holder.cbk.isChecked = file.isSelected
 
-        holder.cbk.setOnCheckedChangeListener { buttonView, isChecked ->
+        val pathOfFile = File(file.filePath)
+        //Log.e("inside Rv","${pathOfFile.absolutePath}")
+        Log.e("ends with","${pathOfFile.endsWith(".jpeg")} && ${pathOfFile.endsWith(".png")}")
+        if (pathOfFile.name.endsWith(".jpeg")){
+            holder.fileType.text = ""
+            Picasso.get().load(pathOfFile).placeholder(R.drawable.ic_image_grey).into(holder.image)
+        }else if (pathOfFile.name.endsWith(".png")){
+            holder.fileType.text = ""
+            Picasso.get().load(pathOfFile).placeholder(R.drawable.ic_image_grey).into(holder.image)
+        }
+
+        holder.cbk.setOnClickListener {
             if (callBack != null){
-                callBack.onClick(isChecked,file)
+                callBack.onClick(position,file)
             }
         }
     }
@@ -54,6 +69,6 @@ class FilesAdapter(callBack:ClickCallBack,files:ArrayList<FileDetails>): Recycle
     }
 
     interface ClickCallBack{
-        fun onClick(isChecked:Boolean,fileDetails: FileDetails)
+        fun onClick(position:Int,fileDetails: FileDetails)
     }
 }

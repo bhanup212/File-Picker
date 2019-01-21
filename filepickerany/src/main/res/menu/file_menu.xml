@@ -2,12 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item android:id="@+id/ok_menu"
-          android:orderInCategory="101"
+          android:orderInCategory="103"
           app:showAsAction="always"
           android:title="Ok"/>
 
-    <item android:id="@+id/selected_menu"
-          android:orderInCategory="102"
-          app:showAsAction="always"
-          android:title="selected Files"/>
 </menu>
