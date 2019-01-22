@@ -144,6 +144,7 @@ class FileActivity : AppCompatActivity(), FilesAdapter.ClickCallBack {
                 } else {
                     // User refused to grant permission. You can add AlertDialog here
                     Toast.makeText(this, "Storage Permission Denied", Toast.LENGTH_LONG).show()
+                    finish()
                 }
             }
         }

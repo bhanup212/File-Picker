@@ -44,7 +44,7 @@ class FilesAdapter(callBack:ClickCallBack,files:ArrayList<FileDetails>): Recycle
             Picasso.get().load(pathOfFile).placeholder(R.drawable.ic_image_grey).into(holder.image)
         }else if (pathOfFile.name.endsWith(".png")){
             holder.fileType.text = ""
-            Picasso.get().load(pathOfFile).placeholder(R.drawable.ic_image_grey).into(holder.image)
+            Picasso.get().load(pathOfFile).into(holder.image)
         }
 
         holder.cbk.setOnClickListener {
